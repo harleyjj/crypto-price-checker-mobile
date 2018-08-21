@@ -4,7 +4,9 @@ import { View, Text, ScrollView } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { fetchCoinData } from '../actions/coinData';
+import { screenChange } from '../actions/screen';
 import CoinCard from './CoinCard';
+import CoinDetails from './CoinDetails';
 
 class CryptoContainer extends React.Component {
     componentWillMount() {
@@ -12,8 +14,21 @@ class CryptoContainer extends React.Component {
     }
 
     renderCoinCards() {
+        
         const { coin } = this.props;
         const data = Object.keys(coin.data.data);
+
+        if(this.props.screen) {
+            let focusedCoin = {};
+            data.forEach(index => {
+                let c = coin.data.data[index];
+                if (c.name === this.props.screen) {
+                    focusedCoin = c;
+                }
+            })
+            return <CoinDetails focusedCoin={focusedCoin}/>;
+        }
+        
         const coins = [];
 
         data.forEach( index => {
@@ -27,6 +42,7 @@ class CryptoContainer extends React.Component {
                 price_usd={c.quotes ? c.quotes.USD.price: 'unknown'}
                 percent_change_24h={c.quotes ? c.quotes.USD.percent_change_24h: 'unknown'}
                 percent_change_7d={c.quotes ? c.quotes.USD.percent_change_7d: 'unknown'}
+                onPress={() => screenChange(c.name)}
             />
             )
         })
@@ -80,7 +96,8 @@ const styles = {
 
 function mapStateToProps(state) {
     return {
-        coin: state.coin
+        coin: state.coin,
+        screen: state.screen.screen,
     }
 }
 
